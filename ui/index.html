@@ -101,9 +101,9 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:1px}
     for (var i = 0; i < ks.length; i++) if (ks[i].key === k) return ks[i].label;
     return k;
   }
-  // The "📍 place · x, y" line the server adds to a ticket from the city.
+  // The "Location: place · x, y" line the server adds to a ticket from the city.
   function spot(text) {
-    var m = /📍 ([^\n·]*) · (-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)/.exec(text || '');
+    var m = /Location: ([^\n·]*) · (-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)/.exec(text || '');
     return m ? { place: m[1], x: +m[2], y: +m[3] } : null;
   }
 
@@ -128,9 +128,9 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:1px}
     var max = (S.state && S.state.maxPhotos) || 4;
     return '<span class="lbl">Photos (optional, up to ' + max + ')</span>' +
       (S.photos.length ? '<div class="thumbs">' + S.photos.map(function (p, i) {
-        return '<div style="background-image:url(\'' + esc(p) + '\')"><button data-unphoto="' + i + '" aria-label="Remove">✕</button></div>';
+        return '<div style="background-image:url(\'' + esc(p) + '\')"><button data-unphoto="' + i + '" aria-label="Remove">×</button></div>';
       }).join('') + '</div>' : '') +
-      (S.photos.length < max ? '<button class="btn" id="pick">🖼 Add from gallery</button><div class="dim3">Take one with the Camera app first, then add it here.</div>' : '');
+      (S.photos.length < max ? '<button class="btn" id="pick">+ Add from gallery</button><div class="dim3">Take one with the Camera app first, then add it here.</div>' : '');
   }
 
   // ---------------------------------------------------------------- screens
@@ -158,7 +158,7 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:1px}
       (who ? '<input class="input" id="about" maxlength="120" placeholder="Who? (name or ID)">' : '') +
       '<textarea class="input" id="body" maxlength="3600" placeholder="What happened? When?"></textarea>' +
       photoBlock() +
-      '<div class="dim3">📍 Your location (' + esc(s.where || 'unknown') + ') and the time are added for staff. Got a video? Add it on ' + esc(s.website) + ' → Help → this ticket.</div>' +
+      '<div class="dim3">Your location (' + esc(s.where || 'unknown') + ') and the time are added for staff. Got a video? Add it on ' + esc(s.website) + ' → Help → this ticket.</div>' +
       noteHtml() + '<button class="btn act" id="send"' + (S.busy ? ' disabled' : '') + '>Send to staff</button></div>';
   }
 
@@ -182,9 +182,9 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:1px}
       return '<div class="msg ' + (m.is_staff ? 'staff ' : '') + (m.internal ? 'internal' : '') + '"><div class="who">' + esc(m.author) + (m.is_staff ? ' · staff' : '') + (m.internal ? ' · staff only' : '') + ' · ' + esc(when(m.created_at)) + '</div>' + esc(m.body) + '</div>';
     }).join('');
     if (d.attachments && d.attachments.length) {
-      h += '<div class="note">📷 ' + d.attachments.length + ' photo' + (d.attachments.length > 1 ? 's' : '') + ' or clip' + (d.attachments.length > 1 ? 's' : '') + ' on this ticket. View them on ' + esc(S.state.website) + '.</div>';
+      h += '<div class="note">' + d.attachments.length + ' photo' + (d.attachments.length > 1 ? 's' : '') + ' or clip' + (d.attachments.length > 1 ? 's' : '') + ' on this ticket. View them on ' + esc(S.state.website) + '.</div>';
     }
-    if (staff && at) h += '<button class="btn" id="gps" data-x="' + at.x + '" data-y="' + at.y + '">📍 Set GPS to ' + esc(at.place) + '</button>';
+    if (staff && at) h += '<button class="btn" id="gps" data-x="' + at.x + '" data-y="' + at.y + '">Set GPS to ' + esc(at.place) + '</button>';
     if (open) {
       h += '<div class="card quiet"><textarea class="input" id="reply" maxlength="4000" placeholder="' + (staff ? 'Reply to the player' : 'Reply to staff') + '"></textarea>' + photoBlock() +
         (staff ? '<label class="check"><input type="checkbox" id="internal"> Staff-only note</label>' : '<div class="dim3">Video? Add it on ' + esc(S.state.website) + ' → Help → ticket #' + t.id + '.</div>') +

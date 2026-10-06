@@ -135,7 +135,7 @@ lib.callback.register('dps-faceplant:open', function(src, input)
     local where = Faceplant.text(input.where, 120)
     local c = GetEntityCoords(GetPlayerPed(src))
     -- The location line is read by the Staff tab's "Set GPS" button: keep its shape.
-    body = body .. ('\n\n📍 %s · %.1f, %.1f\nSent from the Faceplant app in the city.'):format(where or 'Unknown area', c.x, c.y)
+    body = body .. ('\n\nLocation: %s · %.1f, %.1f\nSent from the Faceplant app in the city.'):format(where or 'Unknown area', c.x, c.y)
     local r = call(src, 'POST', '/tickets', {
         kind = input.kind, subject = subject, about = Faceplant.text(input.about, 120), body = body,
     })
