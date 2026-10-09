@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Faceplant</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Condensed:wght@700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Kit B (DelPerroSands): calm navy panels; orange + white outline only for actions and picked items. No backdrop-filter (black square in NUI). */
+:root{--navy:#0f1a2e;--navy2:#0b1322;--panel:rgba(20,26,40,.82);--row:rgba(255,255,255,.07);--edge:rgba(255,255,255,.9);--edge2:rgba(255,255,255,.22);
+--ink:#fff;--ink2:#c9cfdd;--ink3:#8f99b5;--act:rgba(255,122,69,.8);--sun:#ff7a45;--ok:#4ec98a;--warn:#ffb347;--bad:#ff6b6b;
+--cond:"Roboto Condensed",Roboto,sans-serif;--mono:"Roboto Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:var(--navy);color:var(--ink);font:14px/1.45 Roboto,system-ui,sans-serif}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+header{padding:44px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--navy2);border-bottom:1px solid var(--edge2)}
+header img{height:24px}
+.pill{font:700 11px var(--cond);letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;border:1.5px solid var(--edge2);color:var(--ink2);white-space:nowrap}
+.pill.on{color:var(--ok);border-color:var(--ok)}
+main{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 20px;display:flex;flex-direction:column;gap:10px}
+nav{display:flex;border-top:1px solid var(--edge2);background:var(--navy2);padding:6px 4px 18px}
+nav button{flex:1;background:none;border:0;padding:8px 2px;font:700 11px var(--cond);letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);position:relative}
+nav button.on{color:var(--ink)}
+nav button.on::after{content:"";position:absolute;left:30%;right:30%;bottom:2px;height:3px;border-radius:3px;background:var(--sun)}
+nav .dot{display:inline-block;min-width:16px;padding:0 4px;margin-left:3px;border-radius:8px;background:var(--sun);color:#fff;font-size:10px;line-height:16px}
+.card{background:var(--panel);border:2px solid var(--edge);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.card.quiet{border-color:var(--edge2)}
+h2{margin:0;font:700 15px var(--cond);letter-spacing:.06em;text-transform:uppercase}
+.lbl{font:700 11px var(--cond);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.dim{color:var(--ink2)} .dim3{color:var(--ink3);font-size:12px}
+.mono{font:12px var(--mono);color:var(--ink2)}
+.kinds{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.kind{text-align:left;background:var(--row);border:2px solid var(--edge2);border-radius:12px;padding:9px;display:flex;flex-direction:column;gap:2px}
+.kind b{font:700 13px var(--cond);letter-spacing:.05em;text-transform:uppercase}
+.kind span{font-size:11px;color:var(--ink2);line-height:1.3}
+.kind.on{background:var(--act);border-color:#fff}
+.kind.on span{color:#fff}
+.input{width:100%;background:var(--row);border:1.5px solid var(--edge2);border-radius:10px;padding:9px;color:#fff}
+.input:focus{outline:2px solid var(--sun);outline-offset:0}
+textarea.input{min-height:90px;resize:vertical}
+.btn{display:block;width:100%;padding:11px;border-radius:12px;border:2px solid var(--edge);background:var(--panel);color:#fff;font:700 13px var(--cond);letter-spacing:.07em;text-transform:uppercase;text-align:center}
+.btn.act{background:var(--act);border:3px solid #fff;font-size:15px}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap}
+.thumbs div{position:relative;width:62px;height:62px;border-radius:8px;border:1.5px solid var(--edge2);background:center/cover var(--navy2)}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:1.5px solid #fff;background:var(--navy);font-size:11px;line-height:1;padding:0}
+.item{display:flex;flex-direction:column;gap:3px;text-align:left;width:100%;background:var(--row);border:1.5px solid var(--edge2);border-radius:12px;padding:10px}
+.item b{font-size:14px}
+.st{font:700 10px var(--cond);letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1.5px solid currentColor;align-self:flex-start}
+.st.open{color:var(--warn)} .st.claimed{color:#7cc4ff} .st.waiting{color:var(--sun)} .st.approved{color:var(--ok)} .st.closed{color:var(--ink3)}
+.late{color:var(--bad);font-weight:700}
+.msg{background:var(--row);border-radius:12px;padding:9px;white-space:pre-wrap;word-break:break-word;border-left:3px solid var(--edge2)}
+.msg.staff{border-left-color:var(--sun)} .msg.internal{border-left-color:var(--warn);background:rgba(255,179,71,.08)}
+.msg .who{font:700 11px var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin-bottom:3px}
+.note{border-left:3px solid var(--sun);background:var(--row);border-radius:10px;padding:9px 11px;font-size:13px}
+.note.bad{border-left-color:var(--bad)} .note.ok{border-left-color:var(--ok)}
+.check{display:flex;gap:8px;align-items:center;font-size:13px}
+.back{background:none;border:0;padding:0;font:700 12px var(--cond);letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);align-self:flex-start}
+button:focus-visible{outline:2px solid var(--sun);outline-offset:1px}
+</style>
+</head>
+<body>
+<header><img src="faceplant-logo.svg" alt="Faceplant"><span class="pill" id="badge">City</span></header>
+<main id="main"><div class="dim">Loading…</div></main>
+<nav id="nav">
+  <button data-tab="help" class="on">Help</button>
+  <button data-tab="mine">My tickets</button>
+  <button data-tab="news">News</button>
+  <button data-tab="staff" hidden>Staff</button>
+</nav>
+<script>
+(function () {
+  'use strict';
+  var BASE = 'https://' + (window.resourceName || 'dps-faceplant') + '/';
+  var S = { tab: 'help', state: null, kind: null, photos: [], view: null, ticket: null, queue: null, note: null, busy: false };
+  var $ = function (id) { return document.getElementById(id); };
+  function post(name, body) {
+    return fetch(BASE + name, { method: 'POST', headers: { 'Content-Type': 'application/json; charset=UTF-8' }, body: JSON.stringify(body || {}) })
+      .then(function (r) { return r.json(); }).catch(function () { return null; });
+  }
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+  }
+  function when(iso) {
+    if (!iso) return '';
+    var m = Math.round((Date.now() - Date.parse(iso + (iso.indexOf('Z') < 0 ? 'Z' : ''))) / 60000);
+    if (m < 1) return 'just now'; if (m < 60) return m + ' min ago';
+    if (m < 1440) return Math.round(m / 60) + ' h ago'; return Math.round(m / 1440) + ' d ago';
+  }
+  var STATUS = { open: 'Waiting for staff', claimed: 'Staff on it', waiting: 'Staff replied', approved: 'Approved', closed: 'Closed' };
+  function st(s) { return '<span class="st ' + esc(s) + '">' + esc(STATUS[s] || s) + '</span>'; }
+  function say(kind, text) { S.note = text ? { kind: kind, text: text } : null; }
+  function noteHtml() { return S.note ? '<div class="note ' + S.note.kind + '">' + esc(S.note.text) + '</div>' : ''; }
+  function kindLabel(k) {
+    var ks = (S.state && S.state.kinds) || [];
+    for (var i = 0; i < ks.length; i++) if (ks[i].key === k) return ks[i].label;
+    return k;
+  }
+  // The "Location: place · x, y" line the server adds to a ticket from the city.
+  function spot(text) {
+    var m = /Location: ([^\n·]*) · (-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)/.exec(text || '');
+    return m ? { place: m[1], x: +m[2], y: +m[3] } : null;
+  }
+
+  // ---------------------------------------------------------------- photos from the phone gallery
+  function pickPhotos() {
+    var c = window.components || globalThis.components;
+    var max = (S.state && S.state.maxPhotos) || 4;
+    if (!c || !c.setGallery) { say('bad', 'The gallery is not available on this device.'); return render(); }
+    c.setGallery({
+      allowExternal: false, includeImages: true, includeVideos: false, multiSelect: true,
+      onSelect: function (picked) {
+        var list = Array.isArray(picked) ? picked : picked ? [picked] : [];
+        list.forEach(function (p) {
+          var src = p && (p.src || p.link || p.url);
+          if (typeof src === 'string' && src.indexOf('https://') === 0 && S.photos.indexOf(src) < 0 && S.photos.length < max) S.photos.push(src);
+        });
+        render();
+      }
+    });
+  }
+  function photoBlock() {
+    var max = (S.state && S.state.maxPhotos) || 4;
+    return '<span class="lbl">Photos (optional, up to ' + max + ')</span>' +
+      (S.photos.length ? '<div class="thumbs">' + S.photos.map(function (p, i) {
+        return '<div style="background-image:url(\'' + esc(p) + '\')"><button data-unphoto="' + i + '" aria-label="Remove">×</button></div>';
+      }).join('') + '</div>' : '') +
+      (S.photos.length < max ? '<button class="btn" id="pick">+ Add from gallery</button><div class="dim3">Take one with the Camera app first, then add it here.</div>' : '');
+  }
+
+  // ---------------------------------------------------------------- screens
+  function offline() {
+    var s = S.state;
+    if (s && s.online && !s.linked) {
+      return '<div class="card"><h2>Link your Discord</h2><p class="dim" style="margin:0">Faceplant knows you by your Discord. Open Discord on your PC, then restart FiveM so it can see it.</p></div>';
+    }
+    return '<div class="card quiet"><h2>City link offline</h2><p class="dim" style="margin:0">' + esc((s && s.message) || 'Faceplant can\'t reach the city right now. Try again in a minute.') + '</p></div>';
+  }
+
+  function viewHelp() {
+    var s = S.state;
+    if (s.ban) {
+      return '<div class="card"><h2>You have an active ban</h2><p class="dim" style="margin:0">You can appeal it once, 24 hours after it started, on ' + esc(s.website) + ' → Help.</p></div>';
+    }
+    var kinds = s.kinds.filter(function (k) { return k.key !== 'appeal'; });
+    var h = '<div class="card"><h2>What do you need?</h2><div class="kinds">' + kinds.map(function (k) {
+      return '<button class="kind' + (S.kind === k.key ? ' on' : '') + '" data-kind="' + k.key + '"><b>' + esc(k.label) + '</b><span>' + esc(k.hint) + '</span></button>';
+    }).join('') + '</div></div>';
+    if (!S.kind) return h + noteHtml();
+    var who = S.kind === 'report' || S.kind === 'harassment' || S.kind === 'complaint';
+    return h + '<div class="card"><span class="lbl">' + esc(kindLabel(S.kind)) + '</span>' +
+      '<input class="input" id="subject" maxlength="140" placeholder="Short title">' +
+      (who ? '<input class="input" id="about" maxlength="120" placeholder="Who? (name or ID)">' : '') +
+      '<textarea class="input" id="body" maxlength="3600" placeholder="What happened? When?"></textarea>' +
+      photoBlock() +
+      '<div class="dim3">Your location (' + esc(s.where || 'unknown') + ') and the time are added for staff. Got a video? Add it on ' + esc(s.website) + ' → Help → this ticket.</div>' +
+      noteHtml() + '<button class="btn act" id="send"' + (S.busy ? ' disabled' : '') + '>Send to staff</button></div>';
+  }
+
+  function viewMine() {
+    var t = S.state.tickets || [];
+    if (!t.length) return '<div class="card quiet"><h2>No tickets yet</h2><p class="dim" style="margin:0">Anything you send from Help shows here, and on ' + esc(S.state.website) + ' → Help.</p></div>';
+    return noteHtml() + t.map(function (x) {
+      return '<button class="item" data-open="' + x.id + '"><span class="row" style="justify-content:space-between"><b>' + esc(x.subject) + '</b>' + st(x.status) + '</span>' +
+        '<span class="dim3">#' + x.id + ' · ' + esc(kindLabel(x.kind)) + ' · ' + esc(when(x.updated_at || x.created_at)) + '</span></button>';
+    }).join('');
+  }
+
+  function viewTicket() {
+    var d = S.ticket, t = d.ticket, staff = t.access === 'staff', open = t.status !== 'closed';
+    var first = d.messages[0] ? d.messages[0].body : '', at = spot(first);
+    var h = '<button class="back" data-back="1">‹ Back</button><div class="card"><span class="row" style="justify-content:space-between"><h2>' + esc(t.subject) + '</h2>' + st(t.status) + '</span>' +
+      '<span class="mono">#' + t.id + ' · ' + esc(kindLabel(t.kind)) + (t.about_text ? ' · about ' + esc(t.about_text) : '') + (staff ? ' · from ' + esc(t.opener) : '') + '</span>' +
+      (t.claimed_name ? '<span class="dim3">Handled by ' + esc(t.claimed_name) + '</span>' : '') +
+      (t.outcome ? '<div class="note ok">' + esc(t.outcome) + '</div>' : '') + '</div>';
+    h += d.messages.map(function (m) {
+      return '<div class="msg ' + (m.is_staff ? 'staff ' : '') + (m.internal ? 'internal' : '') + '"><div class="who">' + esc(m.author) + (m.is_staff ? ' · staff' : '') + (m.internal ? ' · staff only' : '') + ' · ' + esc(when(m.created_at)) + '</div>' + esc(m.body) + '</div>';
+    }).join('');
+    if (d.attachments && d.attachments.length) {
+      h += '<div class="note">' + d.attachments.length + ' photo' + (d.attachments.length > 1 ? 's' : '') + ' or clip' + (d.attachments.length > 1 ? 's' : '') + ' on this ticket. View them on ' + esc(S.state.website) + '.</div>';
+    }
+    if (staff && at) h += '<button class="btn" id="gps" data-x="' + at.x + '" data-y="' + at.y + '">Set GPS to ' + esc(at.place) + '</button>';
+    if (open) {
+      h += '<div class="card quiet"><textarea class="input" id="reply" maxlength="4000" placeholder="' + (staff ? 'Reply to the player' : 'Reply to staff') + '"></textarea>' + photoBlock() +
+        (staff ? '<label class="check"><input type="checkbox" id="internal"> Staff-only note</label>' : '<div class="dim3">Video? Add it on ' + esc(S.state.website) + ' → Help → ticket #' + t.id + '.</div>') +
+        noteHtml() + '<button class="btn act" id="rsend"' + (S.busy ? ' disabled' : '') + '>Send</button>';
+      if (staff) {
+        h += (!t.claimed_by ? '<button class="btn" id="claim">Claim</button>' : '') +
+          (['refund', 'appeal'].indexOf(t.kind) < 0 ? '<input class="input" id="outcome" maxlength="400" placeholder="Outcome for the player (shown when closed)"><button class="btn" id="tclose">Close ticket</button>'
+            : '<div class="dim3">Refunds and appeals are decided on the website.</div>');
+      }
+      h += '</div>';
+    } else h += noteHtml();
+    return h;
+  }
+
+  function viewNews() {
+    var n = S.state.news || [];
+    var rules = '<div class="card quiet"><h2>City rules</h2><p class="dim" style="margin:0">Read them on ' + esc(S.state.website) + '/rules.html. Staff point to them by number, like "rule 3.2".</p></div>';
+    if (!n.length) return rules + '<div class="card quiet"><h2>No news yet</h2><p class="dim" style="margin:0">City news from staff shows here.</p></div>';
+    return n.map(function (x) {
+      return '<div class="card quiet"><h2>' + esc(x.title) + '</h2><div class="dim" style="white-space:pre-wrap">' + esc(x.body) + '</div><span class="dim3">' + esc(x.author) + ' · ' + esc(when(x.created_at)) + '</span></div>';
+    }).join('') + rules;
+  }
+
+  function viewStaff() {
+    var sf = S.state.staff, on = sf.duty && sf.duty.on;
+    var h = '<div class="card"><span class="row" style="justify-content:space-between"><h2>Staff · ' + esc(sf.rank || 'Team') + '</h2><span class="pill' + (on ? ' on' : '') + '">' + (on ? '● On duty' : 'Off duty') + '</span></span>' +
+      '<button class="btn' + (on ? '' : ' act') + '" id="duty">' + (on ? 'Clock out' : 'Clock in') + '</button></div>' + noteHtml();
+    var q = S.queue;
+    if (!q) return h + '<div class="dim">Loading the queue…</div>';
+    if (!q.length) return h + '<div class="card quiet"><h2>Queue is clear</h2><p class="dim" style="margin:0">No open tickets you handle.</p></div>';
+    return h + q.map(function (x) {
+      return '<button class="item" data-open="' + x.id + '"><span class="row" style="justify-content:space-between"><b>' + esc(x.subject) + '</b>' + st(x.status) + '</span>' +
+        '<span class="dim3">#' + x.id + ' · ' + esc(kindLabel(x.kind)) + ' · ' + esc(x.opener || '') + ' · ' + esc(when(x.created_at)) + (x.late ? ' · <span class="late">late</span>' : '') + '</span></button>';
+    }).join('');
+  }
+
+  function render() {
+    var s = S.state, m = $('main');
+    var nav = $('nav'), staffBtn = nav.querySelector('[data-tab="staff"]');
+    staffBtn.hidden = !(s && s.staff);
+    nav.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === S.tab); });
+    var mineBtn = nav.querySelector('[data-tab="mine"]'), waiting = s && s.tickets ? s.tickets.filter(function (t) { return t.status === 'waiting'; }).length : 0;
+    mineBtn.innerHTML = 'My tickets' + (waiting ? '<span class="dot">' + waiting + '</span>' : '');
+    $('badge').textContent = s && s.staff ? (s.staff.duty && s.staff.duty.on ? 'On duty' : 'Staff') : 'City';
+    $('badge').className = 'pill' + (s && s.staff && s.staff.duty && s.staff.duty.on ? ' on' : '');
+    if (!s) { m.innerHTML = '<div class="dim">Loading…</div>'; return; }
+    if (!s.online || !s.linked) { m.innerHTML = offline(); return; }
+    if (S.view === 'ticket' && S.ticket) { m.innerHTML = viewTicket(); return; }
+    m.innerHTML = S.tab === 'mine' ? viewMine() : S.tab === 'news' ? viewNews() : S.tab === 'staff' && s.staff ? viewStaff() : viewHelp();
+  }
+
+  // ---------------------------------------------------------------- actions
+  function refresh() {
+    return post('state').then(function (s) { if (s) S.state = s; render(); });
+  }
+  function loadQueue() {
+    return post('queue').then(function (r) { S.queue = r && r.ok ? r.data.items : []; render(); });
+  }
+  function openTicket(id) {
+    S.busy = false;
+    return post('ticket', { id: id }).then(function (r) {
+      if (!r || !r.ok) { say('bad', (r && r.message) || 'Could not open that ticket.'); return render(); }
+      S.ticket = r.data; S.view = 'ticket'; S.photos = []; render();
+    });
+  }
+  function done(r, okText) {
+    S.busy = false;
+    if (!r || !r.ok) { say('bad', (r && r.message) || 'That did not work. Try again in a moment.'); render(); return false; }
+    var extra = r.photoFailed ? ' (' + r.photoFailed + ' photo' + (r.photoFailed > 1 ? 's' : '') + ' could not be added)' : '';
+    say(r.photoFailed ? 'bad' : 'ok', okText + extra);
+    return true;
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || S.busy) return;
+    if (b.dataset.tab) { S.tab = b.dataset.tab; S.view = null; S.ticket = null; say(); render(); if (S.tab === 'staff') loadQueue(); else refresh(); return; }
+    if (b.dataset.kind) { S.kind = b.dataset.kind; say(); render(); return; }
+    if (b.dataset.unphoto) { S.photos.splice(+b.dataset.unphoto, 1); render(); return; }
+    if (b.dataset.open) { say(); openTicket(+b.dataset.open); return; }
+    if (b.dataset.back) { S.view = null; S.ticket = null; S.photos = []; say(); render(); if (S.tab === 'staff') loadQueue(); else refresh(); return; }
+    if (b.id === 'pick') { pickPhotos(); return; }
+    if (b.id === 'send') {
+      var subject = $('subject').value, body = $('body').value, about = $('about') ? $('about').value : '';
+      if (!subject.trim() || !body.trim()) { say('bad', 'Give it a short title and the details.'); return render(); }
+      S.busy = true; say(); render();
+      post('open', { kind: S.kind, subject: subject, about: about, body: body, photos: S.photos }).then(function (r) {
+        if (done(r, 'Sent. Ticket #' + (r && r.id) + ' is with staff. Replies show under My tickets.')) { S.kind = null; S.photos = []; S.tab = 'mine'; }
+        return refresh();
+      });
+      return;
+    }
+    if (b.id === 'rsend') {
+      var tid = S.ticket.ticket.id;
+      S.busy = true; say(); render();
+      post('reply', { id: tid, body: $('reply').value, photos: S.photos, internal: !!($('internal') && $('internal').checked) })
+        .then(function (r) { if (done(r, 'Sent.')) S.photos = []; return openTicket(tid); });
+      return;
+    }
+    if (b.id === 'claim') {
+      var cid = S.ticket.ticket.id; S.busy = true; render();
+      post('claim', { id: cid }).then(function (r) { done(r, 'Claimed. It\'s yours.'); return openTicket(cid); });
+      return;
+    }
+    if (b.id === 'tclose') {
+      var xid = S.ticket.ticket.id; S.busy = true; render();
+      post('close', { id: xid, outcome: $('outcome').value }).then(function (r) { done(r, 'Closed.'); return openTicket(xid); });
+      return;
+    }
+    if (b.id === 'gps') {
+      post('gps', { x: +b.dataset.x, y: +b.dataset.y }).then(function (r) { say(r && r.ok ? 'ok' : 'bad', r && r.ok ? 'GPS set.' : 'Could not set the GPS.'); render(); });
+      return;
+    }
+    if (b.id === 'duty') {
+      var on = !(S.state.staff.duty && S.state.staff.duty.on);
+      S.busy = true; render();
+      post('duty', { on: on }).then(function (r) { done(r, on ? 'Clocked in. Shown on the staff board.' : 'Clocked out.'); return refresh(); }).then(loadQueue);
+    }
+  });
+
+  window.addEventListener('message', function (e) {
+    var d = e.data || {};
+    if (d.action === 'reset') { S = { tab: 'help', state: null, kind: null, photos: [], view: null, ticket: null, queue: null, note: null, busy: false }; render(); refresh(); }
+  });
+
+  // The device frame can keep this page alive while hidden: refresh when shown,
+  // and every 30 seconds while open so staff replies appear.
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && !S.view) refresh(); });
+  setInterval(function () { if (document.hidden || S.busy) return; if (S.view === 'ticket' && S.ticket) return; if (S.tab === 'staff') loadQueue(); else refresh(); }, 30000);
+  render(); refresh();
+})();
+</script>
+</body>
+</html>
