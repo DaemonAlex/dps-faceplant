@@ -20,6 +20,7 @@ server_script 'server/main.lua'
 files {
     'ui/index.html',
     'ui/faceplant-logo.svg',
+    'ui/dps-logo.svg',
     'ui/faceplant-icon.png',
 }
 
