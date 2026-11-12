@@ -7,6 +7,13 @@ shift and ban is the same record on the phone and on the website.
 
 This is a server and staff app. It is not the Faceplant social feed.
 
+## What it is for
+
+A player who needs staff used to leave the city, open Discord or the website, and write it all
+out again. Staff had to switch windows to see it. Faceplant puts the ticket in the player's hand
+while they are still standing where it happened, with the place, the time and photos attached.
+Staff answer from the same phone, and the website keeps the one record.
+
 ## What players get
 
 | Tab | What it does |
@@ -48,6 +55,37 @@ phone page ─► client/main.lua ─► server/main.lua ─► website API on o
   their real type, and kept privately with the ticket. Only the phone's photo
   host is accepted.
 
+## On its own, and with other scripts
+
+**On its own.** The app needs `lb-phone` to show, and the DelPerroSands website to hold the
+tickets. There is no version with free scripts only. If the website does not answer, the app
+says it is offline and players can still join the city.
+
+**With a paid phone and tablet (lb-phone, lb-tablet).** Faceplant is an app on the home screen of
+both. Photos come from the phone's own gallery: take one with the Camera app, then add it to the
+ticket. The script uses the public custom app exports and the gallery picker only, so a phone or
+tablet update does not break it. It adds the app again when `lb-phone` restarts. The tablet is
+optional. Every tablet call is guarded.
+
+**With the website (delperrosands.com).** Every ticket, reply, photo, duty shift and ban is the
+same record in both places. The website decides ranks, limits and who can handle which ticket.
+The game server only passes things along with a key that players never see.
+
+**With a paid admin menu (wasabi_adminmenu).** A ban made in the admin menu is copied onto the
+player's website record by the website. This script does not call the admin menu, so an admin
+menu update does not break it. Bans made on the website are enforced here at connect and every
+60 seconds.
+
+**With Discord.** A player is matched to their website account by their Discord ID. Players need
+Discord open when they start FiveM.
+
+## Requirements
+
+- `ox_lib`
+- `lb-phone` (paid)
+- `lb-tablet` (paid, optional)
+- The DelPerroSands website portal API, reachable from the game server
+
 ## Install
 
 1. Put this folder in `resources/[dps]/dps-faceplant`.
@@ -84,3 +122,59 @@ lua5.4 tests/run.lua
 - A phone notification when staff reply (the page refreshes every 30 seconds while open).
 - Viewing photos inside the app (staff view them on the website).
 - Blocking players who are not city members (whitelist) is a separate decision.
+
+## Configuration
+
+`config.lua`:
+
+| Setting | Meaning |
+|---|---|
+| `Config.AppIdentifier`, `AppName`, `AppDescription`, `AppDeveloper` | How the app shows on the phone and tablet. |
+| `Config.PortalUrl` | The website's API on the private network. Never the public address. |
+| `Config.WebsiteUrl` | The address shown to players for appeals and rules. |
+| `Config.SyncSeconds` | How often the game asks the website for new bans. Default 60. |
+| `Config.JoinCheckTimeoutMs` | How long the join check waits for the website before it lets the player in. Default 5000. |
+| `Config.MaxPhotos` | Photos on one ticket or reply. Default 4. |
+
+The key is not in `config.lua`. It is the server-only convar `dps_faceplant_key`.
+
+## Recent changes
+
+- **12 November 2026.** README: what it is for, how it works alone and with paid scripts, other
+  DPS scripts.
+- **25 October 2026.** Synced with the live server.
+- **8 October 2026.** First version: help, reports, harassment, bugs and staff tools on the phone
+  and tablet.
+- **6 October 2026.** The location line and buttons use plain text. Emoji showed as boxes.
+
+## Author
+
+Made by [DaemonAlex](https://github.com/DaemonAlex) for DelPerroSands.
+
+## Other DPS scripts
+
+All of these are made for DelPerroSands and run together on one Qbox server. Each one works on
+its own. The ones marked "pairs with" do more when both are running.
+
+| Script | What it does |
+|---|---|
+| [dps-inventory](https://github.com/DaemonAlex/dps-inventory) | The inventory: ox_inventory with equipment slots, backpacks, armour plates and a self status panel, in the DelPerroSands colours. |
+| [dps-medical](https://github.com/DaemonAlex/dps-medical) | Patient records, illness and diagnostic tests. A companion to wasabi_ambulance. Pairs with dps-inventory: symptoms and diagnoses show on the status panel. |
+| [dps-insurance](https://github.com/DaemonAlex/dps-insurance) | Ties m-Insurance into the MDT, impound, hospital and medical chart. Pairs with dps-medical. |
+| [dps-studio](https://github.com/DaemonAlex/dps-studio) | Build rooms, doors and portals in game from one panel (`/studio`), with owners and managers so staff do not have to support them. |
+| [dps-shops](https://github.com/DaemonAlex/dps-shops) | Shop clerks who greet and react to a robbery, then player-owned shops. |
+| [dps-fleet](https://github.com/DaemonAlex/dps-fleet) | Vehicle browser and workshop on one panel: extras, liveries and mods for emergency vehicles. |
+| [dps-parking](https://github.com/DaemonAlex/dps-parking) | Parking with valet, impound, violations and reserved spots. |
+| [dps-vehiclepersistence](https://github.com/DaemonAlex/dps-vehiclepersistence) | Vehicles stay where they were parked. Pairs with dps-parking. |
+| [dps-towjob](https://github.com/DaemonAlex/dps-towjob) | Queue-based tow job with jg-mechanic integration. |
+| [dps-services](https://github.com/DaemonAlex/dps-services) | Request a tow and follow it live on the lb-phone and lb-tablet. Pairs with dps-towjob. |
+| [dps-autoshops](https://github.com/DaemonAlex/dps-autoshops) | Self-service repair shops when no mechanic is on duty. |
+| [dps-cityworker](https://github.com/DaemonAlex/dps-cityworker) | City infrastructure job and career. |
+| [dps-ainpcs](https://github.com/DaemonAlex/dps-ainpcs) | NPCs you can talk to, with trust, quests and intel. |
+| [dps-badpeds](https://github.com/DaemonAlex/dps-badpeds) | Police interaction with NPCs: stops, arrests, intel and jail records. |
+| [dps-gangwars](https://github.com/DaemonAlex/dps-gangwars) | Ambient gang NPCs, territory population and war reinforcements. |
+| [dps-rotations](https://github.com/DaemonAlex/dps-rotations) | Moves dealers, harvests and other spots on a fixed schedule. |
+| [dps-trains](https://github.com/DaemonAlex/dps-trains) | The train system. Pairs with dps-trains-stock, dps-traintools and dps-transitapp. |
+| [dps-transitapp](https://github.com/DaemonAlex/dps-transitapp) | Live train arrival boards on the lb-phone. |
+| [dps-chat](https://github.com/DaemonAlex/dps-chat) | A command box for voice-only servers. No chat feed. |
+| [dps-filmmode](https://github.com/DaemonAlex/dps-filmmode) | One key hides every HUD layer and gives a smooth free camera for recording. |
